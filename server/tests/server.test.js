@@ -8,12 +8,12 @@ beforeEach(() => {
   Todo.remove({}).then(() => done());
 });
 
-describe('POST /todos', () => {
+describe('POST /todo', () => {
   it('should create a new todo', (done) => {
     var text = 'Test todo text';
 
     request(app)
-      .post('/todos')
+      .post('/todo')
       .send({text})
       .expect(200)
       .expect((res) => {
@@ -35,7 +35,7 @@ describe('POST /todos', () => {
   it('should not create todo with invalid body data', (done) => {
 
     request(app)
-      .post('/todos')
+      .post('/todo')
       .send({})
       .expect(400)
       .end((err, res) => {
