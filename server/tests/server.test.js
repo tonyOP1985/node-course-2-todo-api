@@ -1,3 +1,4 @@
+
 const expect = require('expect');
 const request = require('supertest');
 const {ObjectID} = require('mongodb');
@@ -12,10 +13,12 @@ const todos = [{
   text: "First test todo"
 }, {
   _id: new ObjectID(),
-  text: "Second text todo"
+  text: "Second text todo",
+  completed: true,
+  completedAt: 333
 }];
 
-beforeEach(() => {
+beforeEach((done) => {
   Todo.remove({}).then(() => {
     Todo.insertMany(todos);
   }).then(() => done());
@@ -93,14 +96,14 @@ describe('GET /todo/:id', () => {
     var hexId = new ObjectID().toHexString();
 
     request(app)
-      .get(`/todo/${hexId}`)
+      .get(`/todos/${hexId}`)
       .expect(404)
       .end(done);
   });
 
   it('should return 404 for non-object ids', (done) => {
     request(app)
-      .get('/todo/59')
+      .get('/todos/59')
       .expect(404)
       .end(done);
   });
@@ -112,7 +115,7 @@ describe('DELETE /todo/:id', () => {
     var hexId = todos[1]._id.toHexString();
 
     request(app)
-      .delete(`/todo/${hexId}`)
+      .delete(`/todos/${hexId}`)
       .expect(200)
       .expect((res) => {
         expect(res.body.todo._id).toBe(hexId);
@@ -135,15 +138,59 @@ describe('DELETE /todo/:id', () => {
     var hexId = new ObjectID().toHexString();
 
     request(app)
-      .delete(`/todo/${hexId}`)
+      .delete(`/todos/${hexId}`)
       .expect(404)
       .end(done);
   });
 
   it('should return 404 if object id is invalid', (done) => {
     request(app)
-      .get('/todo/59')
+      .delete('/todos/59')
       .expect(404)
       .end(done);
   });
 });
+
+
+
+describe('PATCH /todos/:id', () => {
+  it('should update the todo', (done) => {
+    var hexId = todos[0]._id.toHexString();
+    var text = 'Just got changed today';
+
+    request(app)
+      .patch(`/todos/${hexId}`)
+      .send({
+        completed: true,
+        text
+      })
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo.text).toBe(text);
+        expect(res.body.todo.completed).toBe(true);
+        expect(res.body.todo.completedAt).toBeA('number');
+      })
+        .end(done);
+      });
+
+      it('should clear completedAt when todo is not completed', (done) => {
+        var hexId = todos[1]._id.toHexString();
+        var text = 'Just got changed today!!!!';
+
+        request(app)
+          .patch(`/todos/${hexId}`)
+          .send({
+            completed: false,
+            text
+          })
+          .expect(200)
+          .expect((res) => {
+            expect(res.body.todo.text).toBe(text);
+            expect(res.body.todo.completed).toBe(false);
+            expect(res.body.todo.completedAt).toNotExist();
+          })
+            .end(done);
+      });
+  });
+
+  
