@@ -107,6 +107,20 @@ app.patch('/todos/:id', (req, res) => {
 });
 
 
+//user requests
+app.post('/users', (req, res) => {
+  var body = _.pick(req.body, ['email', 'password']);
+  var user = new User(body); //no reason to pass body into an object since it's already an object
+
+  user.save().then((user) => {
+    res.send(user);
+  }).catch((e) => {
+    res.status(400).send(e);
+  });
+});
+
+
+
 
 app.listen(port, () => {
   console.log(`Started up on port ${port}`);
