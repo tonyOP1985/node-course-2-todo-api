@@ -107,7 +107,7 @@ app.patch('/todos/:id', (req, res) => {
 });
 
 
-// POST /user requests
+// POST /user 
 app.post('/users', (req, res) => {
   var body = _.pick(req.body, ['email', 'password']);
   var user = new User(body); //no reason to pass body into an object since it's already an object
