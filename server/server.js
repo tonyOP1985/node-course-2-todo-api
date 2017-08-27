@@ -1,6 +1,5 @@
 require('./config/config');
 
-
 const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -107,13 +106,15 @@ app.patch('/todos/:id', (req, res) => {
 });
 
 
-//user requests
+// POST /user requests
 app.post('/users', (req, res) => {
   var body = _.pick(req.body, ['email', 'password']);
   var user = new User(body); //no reason to pass body into an object since it's already an object
 
-  user.save().then((user) => {
-    res.send(user);
+  user.save().then(() => {
+    return user.generateAuthToken();
+  }).then((token) => {
+    res.header('x-auth', token).send(user);
   }).catch((e) => {
     res.status(400).send(e);
   });
