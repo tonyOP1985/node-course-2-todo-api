@@ -24,7 +24,6 @@ const users = [{
   }]
 }];
 
-
 const todos = [{
   _id: new ObjectID(),
   text: "First test todo",
